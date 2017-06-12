@@ -2,14 +2,15 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Hello World</title>
+        <title> k-means algorithm console</title>
         <script src="https://unpkg.com/react@latest/dist/react.js"></script>
         <script src="https://unpkg.com/react-dom@latest/dist/react-dom.js"></script>
         <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
-
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     </head>
     <body>
-        <div id="root"></div>
+        <div id="root" style="margin: 10px"></div>
         <script type="text/babel">
 
             class KMeansConsole extends React.Component {
@@ -19,8 +20,9 @@
                     // initial state
                     this.state = {
                         dataSet: '[[1,1],[1,1],[2,2],[2,2]]',
-                        k: 3,
+                        k: 2,
                         maxIterations: 10,
+                        isError: false,
                         result: ""
                     };
 
@@ -28,6 +30,10 @@
                     this.handleSubmit = this.handleSubmit.bind(this);
                 }
 
+                alertStyle(){
+                    console.log(this.state.isError);
+                    return 'alert '+ (this.state.isError ? 'alert-danger' :'alert-success');
+                }
                 handleChange(event) {
                     const name = event.target.name;
                     // set state value according to the input field changed
@@ -46,7 +52,8 @@
                     }
                     catch(err){
                         this.setState({
-                            result: "input error - data set should be an array of n dimensional arrays"
+                            result: "input error - data set should be an array of n dimensional arrays",
+                            isError: true
                         })
                         return;
                     };
@@ -61,7 +68,9 @@
                     }
                     // need to stringify to use fetch
                     body = JSON.stringify(body);
-                    let request = new Request('http://173.193.107.30:31798/cluster', {method: 'POST',headers: {
+                    let url = 'http://173.193.107.30:31798/cluster';
+//                    let url = 'http://localhost:8080/cluster';
+                    let request = new Request(url, {method: 'POST',headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     }, body: body});
@@ -70,48 +79,64 @@
                         if (response.ok){
                             return response.json().then((data)=>{
                                 // success flow - show clusters in result
-                                this.setState({result: JSON.stringify(data)});
+                                this.setState({
+                                    result: JSON.stringify(data),
+                                    isError: false
+                                });
                             });
                         }
                         else{
                             return response.json().then((data)=>{
                                 // request failed - show error
                                 console.log(data.error);
-                                this.setState({result: data.error });
+                                this.setState({
+                                    result: data.error,
+                                    isError: true
+                                });
                             });
                         }
                     }).catch((err)=>{
                         // unexpected error
                         console.log(err);
-                        this.setState({result: "oops... an unknown error occurred"});
+                        this.setState({
+                            result: "oops... an unknown error occurred",
+                            isError: true
+                        });
                     });
                 }
 
                 render() {
                     return (
+
                         <div>
+                            <h1>
+                                K-Means Clustering <br></br>
+                                <small className="text-muted">This console triggers an Azure Function implementing the K-means clustering algorithm. <br></br>
+                                    We've provided some initial data to get you started. Enjoy!
+                                </small>
+                            </h1>
                             <form onSubmit={this.handleSubmit}>
-                                <label>
-                                    Data Set:
-                                    <input type="text" value={this.state.dataSet} onChange={this.handleChange} name="dataSet" />
-                                </label>
-                                <br/>
-                                <br/>
-                                <label>
-                                    Max iterations:
-                                    <input type="text" value={this.state.maxIterations} onChange={this.handleChange} name="maxIterations" />
-                                </label>
-                                <br/>
-                                <br/>
-                                <label>
-                                    Number of clusters:
-                                    <input type="text" value={this.state.k} onChange={this.handleChange} name="k" />
-                                </label>
-                                <br/>
-                                <br/>
-                                <input type="submit" value="Submit" />
+                                <div className="form-group">
+                                    <label> Data Set: </label>
+                                    <input type="text" className="form-control" value={this.state.dataSet} onChange={this.handleChange} name="dataSet" />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Max iterations:</label>
+                                    <input type="text" className="form-control" value={this.state.maxIterations} onChange={this.handleChange} name="maxIterations" />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Number of clusters:</label>
+                                    <input type="text" className="form-control" value={this.state.k} onChange={this.handleChange} name="k" />
+                                </div>
+
+                                <button type="submit" className="btn btn-primary">Submit</button>
                             </form>
-                            <p >
+                            <h3 >
+                                Result:
+                            </h3>
+                            <p className={this.alertStyle()} >
                                 {this.state.result}
                             </p>
                         </div>
@@ -124,6 +149,11 @@
                 document.getElementById('root')
             );
 
+
         </script>
+        <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
     </body>
 </html>
