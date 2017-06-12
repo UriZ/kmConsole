@@ -39,10 +39,22 @@
                 handleSubmit(event) {
                     event.preventDefault();
 
+                    let dataSet;
+
+                    try{
+                        dataSet = JSON.parse(this.state.dataSet);
+                    }
+                    catch(err){
+                        this.setState({
+                            result: "input error - data set should be an array of arrays"
+                        })
+                        return;
+                    };
+
                     // request body
                     let body = {
                         "kMeansInput": {
-                            dataSet: JSON.parse(this.state.dataSet),
+                            dataSet: dataSet,
                             k:this.state.k,
                             maxIterations:this.state.maxIterations
                         }
