@@ -3,7 +3,7 @@ A console for an Azure Function based implementation of the K-means algorithm
 
 
 # Usage
-The console is available here: http://173.193.107.30:31798/, running on a kubernetes cluster
+The console is available here: http://173.193.107.30:31798/, running on a kubernetes cluster 
 
 # Run locally
 To run the app locally:
