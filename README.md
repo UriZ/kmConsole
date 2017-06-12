@@ -12,6 +12,8 @@ To run the app locally:
 - npm start 
 - open localhost:8080 in your browser
 
+# Algorithm implementation 
+The algorithm and the Azure function implementaitons are available here: 
 
 
 
