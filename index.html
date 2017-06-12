@@ -61,7 +61,7 @@
                     }
                     // need to stringify to use fetch
                     body = JSON.stringify(body);
-                    let request = new Request('http://localhost:8000/cluster', {method: 'POST',headers: {
+                    let request = new Request('http://173.193.107.30:31798/cluster', {method: 'POST',headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     }, body: body});

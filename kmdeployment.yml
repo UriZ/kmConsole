@@ -1,0 +1,19 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kmconsole
+  labels:
+    app: kmconsole
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: kmconsole
+    spec:
+      containers:
+      - name: kmconsole
+        image: registry.ng.bluemix.net/urizonens/kmconsole:4
+        ports:
+        - containerPort: 8080

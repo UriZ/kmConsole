@@ -1,0 +1,13 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: kmconsole
+spec:
+  type: NodePort
+  selector:
+    app: kmconsole
+  ports:
+    - protocol: TCP
+      port: 8080
+      nodePort: 31798
