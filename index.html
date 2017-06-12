@@ -46,7 +46,7 @@
                     }
                     catch(err){
                         this.setState({
-                            result: "input error - data set should be an array of arrays"
+                            result: "input error - data set should be an array of n dimensional arrays"
                         })
                         return;
                     };
@@ -70,26 +70,20 @@
                         if (response.ok){
                             return response.json().then((data)=>{
                                 // success flow - show clusters in result
-                                let state = this.state;
-                                state.result = JSON.stringify(data);
-                                this.setState(state);
+                                this.setState({result: JSON.stringify(data)});
                             });
                         }
                         else{
                             return response.json().then((data)=>{
                                 // request failed - show error
                                 console.log(data.error);
-                                let state = this.state;
-                                state.result = data.error;
-                                this.setState(state);
+                                this.setState({result: data.error });
                             });
                         }
                     }).catch((err)=>{
                         // unexpected error
                         console.log(err);
-                        let state = this.state;
-                        state.result = "oops... an unknown error occurred";
-                        this.setState(state);
+                        this.setState({result: "oops... an unknown error occurred"});
                     });
                 }
 
