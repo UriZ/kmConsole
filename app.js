@@ -20,7 +20,7 @@ app.post('/cluster', function (req, res) {
 
         if (error)
         {
-            res.status(500).send({error: "internal server error"});
+            res.status(503).send({error: "error: k-means service is unavailable"});
         }
         else
         {

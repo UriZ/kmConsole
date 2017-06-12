@@ -1,197 +1,123 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8" />
-    <title>Hello World</title>
-    <script src="https://unpkg.com/react@latest/dist/react.js"></script>
-    <script src="https://unpkg.com/react-dom@latest/dist/react-dom.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Hello World</title>
+        <script src="https://unpkg.com/react@latest/dist/react.js"></script>
+        <script src="https://unpkg.com/react-dom@latest/dist/react-dom.js"></script>
+        <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
 
-</head>
-<body>
-<div id="root"></div>
-<script type="text/babel">
+    </head>
+    <body>
+        <div id="root"></div>
+        <script type="text/babel">
 
+            class KMeansConsole extends React.Component {
+                constructor(props) {
+                    super(props);
 
+                    // initial state
+                    this.state = {
+                        dataSet: '[[1,1],[1,1],[2,2],[2,2]]',
+                        k: 3,
+                        maxIterations: 10,
+                        result: ""
+                    };
 
-    class Clustering extends React.Component {
-        constructor(props) {
-            super(props);
-            this.state = {
-                dataSet: '[[1,1],[1,1],[2,2],[2,2]]',
-                k: 3,
-                maxIterations: 10,
-                result: ""
-            };
+                    this.handleChange = this.handleChange.bind(this);
+                    this.handleSubmit = this.handleSubmit.bind(this);
+                }
 
+                handleChange(event) {
+                    const name = event.target.name;
+                    // set state value according to the input field changed
+                    this.setState({
+                        [name]: event.target.value
+                    });
+                }
 
-            /****
-             *
-             *
-             * {
-    "kMeansInput": {
+                handleSubmit(event) {
+                    event.preventDefault();
 
-    dataSet: [[1,1,1],[2,2,2],[1,1,1],[4,5,5],[9,9,9],[4,4,4]],
-    k:3,
-    maxIterations:10
-    }
-}
-             *
-             * @type {()}
-             */
+                    // request body
+                    let body = {
+                        "kMeansInput": {
+                            dataSet: JSON.parse(this.state.dataSet),
+                            k:this.state.k,
+                            maxIterations:this.state.maxIterations
+                        }
+                    }
+                    // need to stringify to use fetch
+                    body = JSON.stringify(body);
+                    let request = new Request('http://localhost:8000/cluster', {method: 'POST',headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }, body: body});
 
-            this.handleChange = this.handleChange.bind(this);
-            this.handleSubmit = this.handleSubmit.bind(this);
-        }
+                    fetch(request).then((response)=>{
+                        if (response.ok){
+                            return response.json().then((data)=>{
+                                // success flow - show clusters in result
+                                let state = this.state;
+                                state.result = JSON.stringify(data);
+                                this.setState(state);
+                            });
+                        }
+                        else{
+                            return response.json().then((data)=>{
+                                // request failed - show error
+                                console.log(data.error);
+                                let state = this.state;
+                                state.result = data.error;
+                                this.setState(state);
+                            });
+                        }
+                    }).catch((err)=>{
+                        // unexpected error
+                        console.log(err);
+                        let state = this.state;
+                        state.result = "oops... an unknown error occurred";
+                        this.setState(state);
+                    });
+                }
 
-        handleChange(event) {
-            const name = event.target.name;
-            this.setState({
-                [name]: event.target.value
-            });
-        }
-
-        handleSubmit(event) {
-//            this.setState({
-//                result: "ok"
-//            });
-            event.preventDefault();
-
-//            console.log(JSON.stringify(this.state));
-            let body = {
-                "kMeansInput": {
-                    dataSet: JSON.parse(this.state.dataSet),
-                    k:this.state.k,
-                    maxIterations:this.state.maxIterations
+                render() {
+                    return (
+                        <div>
+                            <form onSubmit={this.handleSubmit}>
+                                <label>
+                                    Data Set:
+                                    <input type="text" value={this.state.dataSet} onChange={this.handleChange} name="dataSet" />
+                                </label>
+                                <br/>
+                                <br/>
+                                <label>
+                                    Max iterations:
+                                    <input type="text" value={this.state.maxIterations} onChange={this.handleChange} name="maxIterations" />
+                                </label>
+                                <br/>
+                                <br/>
+                                <label>
+                                    Number of clusters:
+                                    <input type="text" value={this.state.k} onChange={this.handleChange} name="k" />
+                                </label>
+                                <br/>
+                                <br/>
+                                <input type="submit" value="Submit" />
+                            </form>
+                            <p >
+                                {this.state.result}
+                            </p>
+                        </div>
+                    );
                 }
             }
-            body = JSON.stringify(body);
-            let request = new Request('http://localhost:8000/cluster', {method: 'POST',headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }, body: body});
 
-            fetch(request).then((response)=>{
-
-
-                return response.json();
-
-            }).then((data)=>{
-
-
-
-
-                console.log(data);
-//                console.log(JSON.stringify(data));
-                let state = this.state;
-                state.result = JSON.stringify(data);
-                this.setState(state);
-
-            }).catch((err)=>{
-                console.log("er!!!!!!r");
-                console.log(err);
-            });
-
-
-
-
-
-
-
-        }
-
-        render() {
-            return (
-                <div>
-                    <form onSubmit={this.handleSubmit}>
-                        <label>
-                            Data Set:
-                            <input type="text" value={this.state.dataSet} onChange={this.handleChange} name="dataSet" />
-                        </label>
-                        <br/>
-                        <br/>
-                        <label>
-                            Max iterations:
-                            <input type="text" value={this.state.maxIterations} onChange={this.handleChange} name="maxIterations" />
-                        </label>
-                        <br/>
-                        <br/>
-                        <label>
-                            Number of clusters:
-                            <input type="text" value={this.state.k} onChange={this.handleChange} name="k" />
-                        </label>
-                        <br/>
-                        <br/>
-                        <input type="submit" value="Submit" />
-                    </form>
-                    <p >
-                        {this.state.result}
-                    </p>
-                </div>
+            ReactDOM.render(
+                    <KMeansConsole />,
+                document.getElementById('root')
             );
-        }
-    }
 
-    ReactDOM.render(
-            <Clustering />,
-        document.getElementById('root')
-    );
-
-
-
-
-
-
-
-
-
-//    class ButtonAndResult extends  React.Component {
-//
-//        constructor(props)
-//        {
-//            super(props);
-//            this.state = {result:"results go here"};
-//        }
-//        handleClick = () => {
-//            fetch('http://localhost:8000/cluster').then((response)=>{
-//
-//
-//               return response.json();
-//
-//            }).then((data)=>{
-//
-//                console.log(data.data);
-//                this.setState({result: data.data});
-//
-//            }).catch((err)=>{
-//
-//                console.log(err);
-//            });
-//
-//        }
-//
-//        render(){
-//            return (
-//                    <div>
-//                        <button onClick={this.handleClick}>
-//                            Click me
-//                        </button>
-//
-//                        <div>
-//                            {this.state.result}
-//                        </div>
-//
-//                    </div>
-//
-//            );
-//        }
-//    }
-//
-//
-//    ReactDOM.render(<ButtonAndResult></ButtonAndResult>,
-//        document.getElementById('root')
-//    );
-
-</script>
-</body>
+        </script>
+    </body>
 </html>
